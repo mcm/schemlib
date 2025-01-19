@@ -1,0 +1,7 @@
+[run]
+# branch = true
+source = schemlib
+
+[report]
+include = schemlib/*
+show_missing = true

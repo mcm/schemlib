@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling", "version-pioneer"]
+build-backend = "hatchling.build"
+
+[project]
+name = "schemlib"
+dynamic = ["version"]
+authors = [{ name = "Steve McMaster", email = "steve@mcmaster.io" }]
+description = "Pydantic powered parsing of Minecraft schematics"
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICENSE.md"]
+dependencies = ["pydantic", "PyMCTranslate", "pyparsing", "quarry"]
+
+[project.urls]
+Homepage = "https://github.com/mcm/schemlib"
+Issues = "https://github.com/mcm/schemlib/issues"
+
+[tool]
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = ["fauxfactory", "green", "parameterized"]
+
+# [tool.hatch.envs.hatch-test.scripts]
+# run = "green{env:HATCH_TEST_ARGS:} schemlib {args}"
+# run-cov = "coverage run -m green{env:HATCH_TEST_ARGS:} {args}"
+
+[tool.hatch.version]
+path = "schemlib/__init__.py"
+
+[tool.ruff]
+line-length = 160
+
+[tool.ruff.lint.extend-per-file-ignores]
+"schemlib/building_gadgets/*" = ["N815"]
+"schemlib/nbt_fields.py" = ["SLF001"]
+"tests/*" = ["ARG001", "ARG002", "INP001", "N802", "PT009", "SLF001"]
