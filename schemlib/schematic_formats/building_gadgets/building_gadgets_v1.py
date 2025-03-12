@@ -24,10 +24,12 @@ class BlockData(BaseModel):
     state: BlockState
     serializer: nbt.Int
     
-    @field_validator("data", mode="plain")
+    @field_validator("data", mode="wrap")
     @classmethod
-    def preserve_block_data_as_nbt(cls, value):
-        return value
+    def preserve_block_data_as_nbt(cls, value, handler):
+        if isinstance(value, nbt.Compound):
+            return value
+        return handler(value)
 
 
 class BuildingGadgetsV1Schematic(BaseModel, AbstractRegion, AbstractSchematic):
@@ -208,7 +210,7 @@ class BuildingGadgetsV1Schematic(BaseModel, AbstractRegion, AbstractSchematic):
         pos1, pos2 = schematic.get_region(0).get_bounding_box()
         metadata = schematic.get_metadata()
 
-        serializers = metadata.get("serializers", ["cfwiz"])
+        serializers = metadata.get("serializers", ["buildinggadgets:dummy_serializer"])
 
         (width, height, length) = schematic.get_region(0).get_size()
         cls.check_size(width, height, length)
@@ -226,7 +228,7 @@ class BuildingGadgetsV1Schematic(BaseModel, AbstractRegion, AbstractSchematic):
                 continue
             bd = {"data": {}, "state": block.state}
             if serializers:
-                bd["serializer"] = 0
+                bd["serializer"] = nbt.Int(0)
             if block.state not in blockdata:
                 blockdata.append(bd)
             pos.append(cls.unparse_block_pos(block.pos, blockdata.index(bd)))
@@ -250,7 +252,7 @@ class BuildingGadgetsV1Schematic(BaseModel, AbstractRegion, AbstractSchematic):
                 },
                 "body": {
                     "data": blockdata,
-                    "pos": pos,
+                    "pos": nbt.List([nbt.Long(x) for x in pos]),
                     "header": {
                         "author": metadata.get("author", "uknown[converted by cfwiz]"),
                         "bounds": {
@@ -263,7 +265,7 @@ class BuildingGadgetsV1Schematic(BaseModel, AbstractRegion, AbstractSchematic):
                         },
                         "name": schematic.get_name(),
                     },
-                    "serializer": serializers,
+                    "serializer": nbt.List([nbt.String(x) for x in serializers]),
                 },
             }
         )
